@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 
 import pressButtonAction from '../actions/pressButtonAction';
+import  {buttonMap} from '../consts/buttonTypes';
 
 
 
@@ -24,7 +25,7 @@ class Button extends Component {
     };
 
     onClick(e){
-      this.props.pressButton(e.target.id, e.target.value);
+      this.props.pressButton(e.target.id);
     }
 
 
@@ -33,9 +34,9 @@ class Button extends Component {
         <button 
           style={this.buttonStyle} 
           onClick={this.onClick} 
-          value={this.props.type}
+          value={buttonMap.get(this.props.id)}
           id={this.props.id}>
-            {this.props.type}
+            {buttonMap.get(this.props.id)}
         </button>
       );
     }
@@ -46,7 +47,6 @@ Button.defaultProps = {
 };
 
 Button.propTypes = {
-  type: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   row: PropTypes.number.isRequired,
   column: PropTypes.number.isRequired,

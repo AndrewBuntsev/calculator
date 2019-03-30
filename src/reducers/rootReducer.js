@@ -1,69 +1,77 @@
+import  {defaultState} from '../store';
 import {PRESS_BUTTON} from '../consts/actionTypes';
 import * as ButtonTypes from '../consts/buttonTypes';
+import  {buttonMap} from '../consts/buttonTypes';
 
-const defaultState = {
-    expression: [
-        {
-            buttonId: ButtonTypes.ZERO,
-            buttonValue: '0'
-        }
-    ]
-};
+const CHARACTERS_LIMIT = 14;
 
-export default function(state = defaultState, action){
+
+export default function(state, action){
     switch(action.type){
         case PRESS_BUTTON:
+
             if (action.buttonId === ButtonTypes.CLEAR){
                 return defaultState;    
             }
+
+            let newState = [...state];
+
             if (action.buttonId === ButtonTypes.DELETE){
-                if (state.expression.length > 1){
-                    return {expression: state.expression.slice(0, state.expression.length - 1)};
+                newState.pop();
+                if (newState.length === 0){
+                    return defaultState;
                 }
+                if (newState.length === 1 && !isNumberButton(newState[0])){
+                    return defaultState;
+                }
+                return newState;
             }
+
             if (isOperationButton(action.buttonId)){
-                let newState = state;
-                if (isOperationButton(state.expression[state.expression.length - 1].buttonId)){
-                    newState = {expression: state.expression.slice(0, state.expression.length - 1)};
+                if (isOperationButton(newState.slice(-1)[0])){
+                    newState.pop();
                 }
-                return {expression: [...newState.expression, {
-                    buttonId: action.buttonId,
-                    buttonValue: action.buttonValue
-                }]};
+                newState.push(action.buttonId);
+                return newState;
             }
+
             if (isNumberButton(action.buttonId)){
-                if (state.expression.length == 1 && state.expression[0].buttonId === ButtonTypes.ZERO){
-                    return {expression: [{
-                        buttonId: action.buttonId,
-                        buttonValue: action.buttonValue
-                    }]};
+                if (newState.length === 1 && newState[0] === ButtonTypes.ZERO){
+                    newState.pop();
                 }
-                return {expression: [...state.expression, {
-                    buttonId: action.buttonId,
-                    buttonValue: action.buttonValue
-                }]};
+                newState.push(action.buttonId);
+                return newState;
             }
+
+            if (action.buttonId === ButtonTypes.DECIMAL){
+                if (isOperationButton(newState.slice(-1)[0])){
+                    newState.push(ButtonTypes.ZERO);
+                    newState.push(action.buttonId);
+                    return newState;
+                }
+                let lastOperationIndex = lastIndexOfAny(state, [ButtonTypes.DIVIDE, ButtonTypes.MULTIPLY, ButtonTypes.SUBTRACT, ButtonTypes.ADD])
+                let lastOperand = state;
+                if (lastOperationIndex > -1){
+                    lastOperand = state.slice(lastOperationIndex + 1);
+                }
+                if (lastOperand.includes(ButtonTypes.DECIMAL)){
+                    return state;
+                }
+                
+                newState.push(action.buttonId);
+                return newState;
+            }
+
             if (action.buttonId === ButtonTypes.EQUALS){
-                let stringExpression = state.expression.reduce((acc,el) => acc + el.buttonValue, '');
-                let resultExpression = eval(stringExpression).toString();
-                return {expression: resultExpression.reduce((acc,el) => acc.concat({
-                    buttonId: action.buttonId,
-                    buttonValue: action.buttonValue
-                }), [])};
-
+                let stringExpression = state.reduce((acc,el) => acc + buttonMap.get(el), '');
                 console.log(stringExpression);
-                console.log(typeof eval(stringExpression).toString());
+                let resultExpression = eval(stringExpression).toString();
+                console.log(resultExpression);
+
+                return resultExpression.split('').reduce((acc,el) => acc.concat([getKeyByValue(buttonMap, el)]), []).slice(0, CHARACTERS_LIMIT);
             }
             
-            else{
-                return {expression: [...state.expression, {
-                    buttonId: action.buttonId,
-                    buttonValue: action.buttonValue
-                }]};
-            }
-
-
-            
+            return state;
         default:
             return state;
     }
@@ -84,6 +92,14 @@ const isOperationButton = buttonId => buttonId === ButtonTypes.DIVIDE
                             || buttonId === ButtonTypes.MULTIPLY
                             || buttonId === ButtonTypes.SUBTRACT
                             || buttonId === ButtonTypes.ADD;
+
+function getKeyByValue(map, value) {
+    return [...map.keys()].find(key => map.get(key) === value);
+}                            
+
+function lastIndexOfAny(where, what){
+    return what.reduce((acc,el) => Math.max(acc, where.lastIndexOf(el)), -1);
+}
 
                             
                             

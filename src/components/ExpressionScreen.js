@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 
+import * as ButtonTypes from '../consts/buttonTypes';
 
 const style = {
   background: '#A1AF76',
@@ -18,9 +19,13 @@ const style = {
 };
 
 class ExpressionScreen extends Component {
+    constructor(props){
+      super(props);
+      //console.log(props);
+    }
     render() {
       return (
-        <div style={style}>{this.props.expression.map(e => e.buttonValue)}</div>
+        <div style={style} id='display'>{this.props.expression}</div>
       );
     }
   }
@@ -30,7 +35,7 @@ class ExpressionScreen extends Component {
   };
 
   const mapStateToProps = state => ({
-    expression: state.expression
+    expression: state.map(key => ButtonTypes.buttonMap.get(key))
   });
 
   export default connect(mapStateToProps, null)(ExpressionScreen);

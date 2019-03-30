@@ -20,3 +20,24 @@ export const EQUALS = 'equals';
 
 export const ZERO = 'zero';
 export const DECIMAL = 'decimal';
+
+export const buttonMap = new Map([
+    [CLEAR, 'C'],
+    [DELETE, '←'],
+    [DIVIDE, '/'],
+    [MULTIPLY, '*'],
+    [SEVEN, '7'],
+    [EIGHT, '8'],
+    [NINE, '9'],
+    [SUBTRACT, '-'],
+    [FOUR, '4'],
+    [FIVE, '5'],
+    [SIX, '6'],
+    [ADD, '+'],
+    [ONE, '1'],
+    [TWO, '2'],
+    [THREE, '3'],
+    [EQUALS, '='],
+    [ZERO, '0'],
+    [DECIMAL, '.']
+]);
